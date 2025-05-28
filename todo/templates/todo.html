@@ -1,10 +1,21 @@
 {% extends 'home.html' %}
 
 {% block content %}
+<!-- <form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Todo</button>
+</form> -->
+
 <ul>
+    {% if todos %}
     {% for todo in todos %}
     <li>{{ todo.todo }}</li>
     {% endfor %}
+    {% else %}
+    <li>No todos yet.</li>
+    {% endif %}
 </ul>
+
 
 {% endblock %}
