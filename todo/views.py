@@ -90,6 +90,9 @@ class TodoListView(View):
 
 
 from rest_framework.serializers import ModelSerializer
+from rest_framework.permissions import IsAuthenticated , AllowAny , IsAdminUser , IsAuthenticatedOrReadOnly
+
+
 
 class AddTodoSerializer(ModelSerializer):
     class Meta:
@@ -97,6 +100,8 @@ class AddTodoSerializer(ModelSerializer):
         fields = "__all__"
 
 class TodoListApiView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         todos = AddTodo.objects.all()
 
