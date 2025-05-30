@@ -85,13 +85,21 @@ class TodoListView(View):
 #         return HttpResponse(data_to_return , content_type= "application/json")
 
 
-
 # Rest Frame Work API View  || This is just make easier to create API view
 
 
 from rest_framework.serializers import ModelSerializer
-from rest_framework.permissions import IsAuthenticated , AllowAny , IsAdminUser , IsAuthenticatedOrReadOnly
-
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+    IsAdminUser,
+    IsAuthenticatedOrReadOnly,
+)
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication,
+    TokenAuthentication,
+)
 
 
 class AddTodoSerializer(ModelSerializer):
@@ -99,13 +107,19 @@ class AddTodoSerializer(ModelSerializer):
         model = AddTodo
         fields = "__all__"
 
+
 class TodoListApiView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    # By which class user can authenticate
+    authentication_classes = []
+
+    # By which class user can access this view / authotize
+    permission_classes = [AllowAny]
 
     def get(self, request):
         todos = AddTodo.objects.all()
 
-        formatted_todo = AddTodoSerializer(todos , many = True).data
+        formatted_todo = AddTodoSerializer(todos, many=True).data
 
         return Response(formatted_todo)
 
@@ -114,9 +128,57 @@ class TodoListApiView(APIView):
 
         formatted_todo = request.data
 
-        serializer = AddTodoSerializer(data = formatted_todo)
+        serializer = AddTodoSerializer(data=formatted_todo)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
 
         return Response(serializer.errors)
+
+
+from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin
+
+
+class TodoListApiView2(ListCreateAPIView):
+    queryset = AddTodo.objects.all()
+    serializer_class = AddTodoSerializer
+
+
+# Need to explore ||
+
+# class TodoListApiView3(ListModelMixin , CreateModelMixin , APIView):
+#     queryset = AddTodo.objects.all()
+#     serializer_class = AddTodoSerializer
+
+
+
+class TodoDetailsApiView(APIView):
+
+    def get(self, request, pk):
+        todo = AddTodo.objects.all(pk=pk)
+        formatted_todo = AddTodoSerializer(todo).data
+        return Response(formatted_todo)
+
+    def put(self, request, pk):
+        todo = AddTodo.objects.get(pk=pk)
+        formatted_todo = json.loads(request.data)
+        serializer = AddTodoSerializer(instance = todo, data=formatted_todo)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        # return Response(serializer.errors)
+        return Response({"message": "Todo Updated"})
+
+    def delete(self, request, pk):
+        todos = AddTodo.objects.get(pk=pk)
+        todos.delete()
+        return Response({"message": "Todo Deleted"})
+
+
+
+from rest_framework.generics import RetrieveAPIView , UpdateAPIView , DestroyAPIView , RetrieveUpdateDestroyAPIView
+
+class TodoDetailsApiView2(RetrieveUpdateDestroyAPIView):
+    queryset = AddTodo.objects.all()
+    serializer_class = AddTodoSerializer
