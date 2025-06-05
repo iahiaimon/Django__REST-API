@@ -9,6 +9,18 @@ from .serializers import PostSerializers, UserSerializers
 
 
 # Create your views here.
+
+class UserApiView(APIView):
+    def get(self, request):
+        pass
+    def post(self , request):
+        serializer = UserSerializers(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data , status = 201)
+        return Response(serializer)
+
+
 class PostApiView(APIView):
     def get(self, request):
         posts = Post.objects.all()
