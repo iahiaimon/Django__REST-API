@@ -6,9 +6,9 @@ from django.contrib.auth.hashers import make_password, check_password
 
 
 class CustomUser(models.Model):
-    username = models.CharField(max_length=100)  # More descriptive name, longer length
+    username = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # Increased length for hashed passwords
+    password = models.CharField(max_length=128)  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
